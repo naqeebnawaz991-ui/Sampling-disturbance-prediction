@@ -240,12 +240,48 @@ st.markdown(
     div[data-testid="stNumberInput"] input {{
         background: {PAPER};
         border-radius: 6px;
+        font-family: {FONT_MONO};
+        font-size: 1.08rem;
+        font-weight: 600;
+        color: {PRIMARY};
+        padding: 0.5rem 0.6rem;
     }}
     .sd-input-caption {{
         font-family: {FONT_MONO};
+        font-size: 0.7rem;
+        color: {INK_SOFT};
+        margin-top: 0.4rem;
+        line-height: 1.4;
+    }}
+    .sd-panel-title {{
+        font-family: {FONT_MONO};
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: {ACCENT};
+        border-bottom: 2px solid {ACCENT}55;
+        padding-bottom: 0.4rem;
+        margin-bottom: 0.7rem;
+    }}
+    .sd-field-label {{
+        font-weight: 600;
+        font-size: 0.86rem;
+        color: {INK};
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }}
+    .sd-field-unit {{
+        font-family: {FONT_MONO};
         font-size: 0.72rem;
         color: {INK_SOFT};
-        margin-top: -0.35rem;
+        font-weight: 500;
+        text-transform: none;
+    }}
+    div[data-testid="stVerticalBlockBorderWrapper"] {{
+        border-radius: 10px !important;
     }}
 
     /* Buttons -------------------------------------------------------------*/
@@ -976,47 +1012,67 @@ tab_predict, tab_info = st.tabs(["Predict", "Pipeline & model info"])
 # =============================================================================
 with tab_predict:
     st.markdown('<div class="sd-eyebrow">1 · Input parameters</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sd-card">', unsafe_allow_html=True)
     st.caption(
         "Fields intentionally permit values beyond the development-data range so "
         "the app can identify extrapolation."
     )
 
-    cols = st.columns(5)
+    INPUT_GROUPS = [
+        ("Sampler geometry", ["AreaRatio", "CuttingEdge"]),
+        ("Soil properties", ["PlasticityIndex", "OCR"]),
+        ("In-situ stress state", ["VerticalStress"]),
+    ]
+
     input_values = {}
 
-    for col, feature in zip(cols, FEATURES):
+    def render_feature_box(feature: str):
         d = domain_lookup[feature]
         default = float(d["mean"])
         span = max(d["maximum"] - d["minimum"], abs(d["maximum"]), 1.0)
-
         ui_min = max(0.0, d["minimum"] - 0.5 * span) if feature != "VerticalStress" else 0.0
         ui_max = d["maximum"] + 0.75 * span
         step = 0.1 if feature in {"OCR", "AreaRatio", "CuttingEdge", "PlasticityIndex"} else 1.0
+        unit = FEATURE_UNITS[feature]
 
-        with col:
-            unit = FEATURE_UNITS[feature]
+        with st.container(border=True):
             st.markdown(
-                f'<div style="font-weight:600; font-size:0.86rem; margin-bottom:0.15rem;">'
-                f'{FEATURE_LABELS[feature]}</div>',
+                f'<div class="sd-field-label">{FEATURE_LABELS[feature]}'
+                f'<span class="sd-field-unit">{unit}</span></div>',
                 unsafe_allow_html=True,
             )
             input_values[feature] = st.number_input(
                 f"{feature} value",
                 min_value=float(ui_min),
                 max_value=float(ui_max),
-                value=float(default),
+                value=default,
                 step=float(step),
                 format="%.3f" if feature == "OCR" else "%.2f",
                 help=FEATURE_HELP[feature],
                 label_visibility="collapsed",
+                key=f"input_{feature}",
             )
             st.markdown(
                 f'<div class="sd-input-caption">Observed {d["minimum"]:.3g}–{d["maximum"]:.3g} {unit}'
-                f'<br>1st–99th {d["p01"]:.3g}–{d["p99"]:.3g} {unit}</div>',
+                f' &nbsp;·&nbsp; 1st–99th {d["p01"]:.3g}–{d["p99"]:.3g} {unit}</div>',
                 unsafe_allow_html=True,
             )
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    def render_panel(title: str, features: list[str]):
+        st.markdown(f'<div class="sd-panel-title">{title}</div>', unsafe_allow_html=True)
+        cols = st.columns(len(features), gap="small")
+        for col, feature in zip(cols, features):
+            with col:
+                render_feature_box(feature)
+
+    row1_col1, row1_col2 = st.columns(2, gap="large")
+    with row1_col1:
+        render_panel(*INPUT_GROUPS[0])
+    with row1_col2:
+        render_panel(*INPUT_GROUPS[1])
+
+    row2_col1, row2_col2, row2_col3 = st.columns([1, 2, 1], gap="large")
+    with row2_col2:
+        render_panel(*INPUT_GROUPS[2])
 
     predict_clicked = st.button(
         "▶  PREDICT SAMPLING DISTURBANCE",
