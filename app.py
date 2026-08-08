@@ -65,9 +65,9 @@ st.markdown(
     """
     <style>
     .block-container {
-        padding-top: 1.10rem;
-        padding-bottom: 2.25rem;
-        max-width: 1120px;
+        padding-top: 0.65rem;
+        padding-bottom: 1.25rem;
+        max-width: 1040px;
     }
 
     h1 {
@@ -75,7 +75,7 @@ st.markdown(
         font-weight: 740;
         letter-spacing: -0.018em;
         margin-bottom: 0.10rem;
-        font-size: 2.15rem;
+        font-size: 1.95rem;
     }
 
     h2, h3 {
@@ -85,7 +85,7 @@ st.markdown(
 
     .section-label {
         color: #17365d;
-        font-size: 1.05rem;
+        font-size: 0.98rem;
         font-weight: 740;
         margin: 0.20rem 0 0.50rem 0;
     }
@@ -212,6 +212,103 @@ st.markdown(
         font-size: 1.35rem;
         line-height: 1.15;
         margin-top: 0.10rem;
+    }
+
+
+    .block-container > div { gap: 0.35rem; }
+    [data-testid="stVerticalBlock"] { gap: 0.45rem; }
+    [data-testid="stHorizontalBlock"] { gap: 0.65rem; }
+
+    .summary-strip {
+        display: grid;
+        grid-template-columns: 1.25fr 1fr 1fr 1fr 1.15fr;
+        gap: 0.55rem;
+        margin: 0.25rem 0 0.45rem 0;
+    }
+
+    .summary-chip {
+        border: 1px solid #e1e6ed;
+        border-radius: 9px;
+        background: #ffffff;
+        padding: 0.58rem 0.68rem;
+        min-height: 72px;
+    }
+
+    .summary-chip-label {
+        color: #667085;
+        font-size: 0.72rem;
+        font-weight: 650;
+        margin-bottom: 0.10rem;
+    }
+
+    .summary-chip-value {
+        color: #17365d;
+        font-size: 1.18rem;
+        font-weight: 760;
+        line-height: 1.10;
+    }
+
+    .summary-chip-sub {
+        color: #667085;
+        font-size: 0.70rem;
+        margin-top: 0.12rem;
+    }
+
+    .ad-badge {
+        display: inline-block;
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin: 0.10rem 0.30rem 0.10rem 0;
+        border: 1px solid #d9e2ec;
+        background: #f8fafc;
+        color: #344054;
+    }
+
+    .status-good, .status-warn, .status-bad {
+        padding: 0.55rem 0.70rem;
+        margin: 0.25rem 0 0.25rem 0;
+        font-size: 0.82rem;
+    }
+
+    .quality-box {
+        padding: 0.60rem 0.70rem;
+        margin-top: 0.20rem;
+        font-size: 0.80rem;
+    }
+
+    div[data-testid="stMetric"] {
+        min-height: 76px !important;
+        padding: 0.55rem 0.60rem !important;
+    }
+
+    div[data-testid="stMetricValue"] {
+        font-size: 1.35rem !important;
+    }
+
+    div[data-testid="stNumberInput"] {
+        margin-bottom: -0.15rem;
+    }
+
+    .compact-note {
+        font-size: 0.72rem;
+        line-height: 1.15;
+    }
+
+    [data-testid="stSidebar"] {
+        min-width: 215px !important;
+        max-width: 215px !important;
+    }
+
+    [data-testid="stSidebar"] .block-container {
+        padding-top: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+        .summary-strip {
+            grid-template-columns: 1fr 1fr;
+        }
     }
 
     div[data-testid="stDataFrame"] {
@@ -518,7 +615,7 @@ def make_display_explanation(explanation):
 
 def make_waterfall(explanation):
     display_explanation = make_display_explanation(explanation)
-    plt.figure(figsize=(7.0, 4.2))
+    plt.figure(figsize=(6.2, 3.5))
     shap.plots.waterfall(
         display_explanation,
         max_display=len(FEATURES),
@@ -662,9 +759,7 @@ st.markdown(
     '<div class="section-label">1. Input parameters</div>',
     unsafe_allow_html=True,
 )
-st.caption(
-    "Input fields intentionally permit values beyond the development-data range so the app can identify extrapolation."
-)
+st.caption("Values outside the development range are allowed so extrapolation can be flagged.")
 
 input_values = {}
 
@@ -673,17 +768,9 @@ def render_input(feature, col):
     default = float(d["mean"])
     span = max(d["maximum"] - d["minimum"], abs(d["maximum"]), 1.0)
 
-    ui_min = (
-        max(0.0, d["minimum"] - 0.5 * span)
-        if feature != "VerticalStress"
-        else 0.0
-    )
+    ui_min = max(0.0, d["minimum"] - 0.5 * span) if feature != "VerticalStress" else 0.0
     ui_max = d["maximum"] + 0.75 * span
-    step = (
-        0.1
-        if feature in {"OCR", "AreaRatio", "CuttingEdge", "PlasticityIndex"}
-        else 1.0
-    )
+    step = 0.1 if feature in {"OCR", "AreaRatio", "CuttingEdge", "PlasticityIndex"} else 1.0
 
     with col:
         input_values[feature] = st.number_input(
@@ -696,19 +783,14 @@ def render_input(feature, col):
         )
         st.markdown(
             f'<div class="compact-note">'
-            f'Observed: {d["minimum"]:.3g}–{d["maximum"]:.3g} &nbsp;|&nbsp; '
-            f'1st–99th: {d["p01"]:.3g}–{d["p99"]:.3g}'
+            f'Obs. {d["minimum"]:.3g}–{d["maximum"]:.3g}<br>'
+            f'1–99% {d["p01"]:.3g}–{d["p99"]:.3g}'
             f'</div>',
             unsafe_allow_html=True,
         )
 
-
-row1 = st.columns(3, gap="medium")
-for feature, col in zip(FEATURES[:3], row1):
-    render_input(feature, col)
-
-row2 = st.columns(2, gap="medium")
-for feature, col in zip(FEATURES[3:], row2):
+input_cols = st.columns(5, gap="small")
+for feature, col in zip(FEATURES, input_cols):
     render_input(feature, col)
 
 predict_clicked = st.button(
@@ -857,10 +939,10 @@ if predict_clicked:
     shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
     reconstructed = base_value + shap_sum
 
-    s1, s2, s3 = st.columns(3)
-    s1.metric("SHAP baseline", f"{base_value:.4f}")
-    s2.metric("Σ SHAP contributions", format_shap_value(shap_sum))
-    s3.metric("Baseline + SHAP", f"{reconstructed:.4f}")
+    st.caption(
+        f"Baseline {base_value:.4f}  •  ΣSHAP {format_shap_value(shap_sum)}  •  "
+        f"Baseline + SHAP {reconstructed:.4f}"
+    )
 
     shap_left, shap_right = st.columns([1.2, 0.8], gap="medium")
 
@@ -885,13 +967,11 @@ if predict_clicked:
             hide_index=True,
         )
 
-    st.info(
-        "Positive SHAP values increase the prediction relative to the model baseline; "
-        "negative values decrease it. SHAP explains the saved model's behaviour and "
-        "does not establish causality."
+    st.caption(
+        "Positive SHAP values increase the prediction; negative values decrease it."
     )
 
-    with st.expander("Model and research-pipeline information"):
+    with st.expander("Model details"):
         st.write(
             "**Loaded model:**",
             str(pipeline_dir / "best_model.joblib"),
@@ -946,9 +1026,6 @@ if predict_clicked:
     )
 
 
-st.divider()
 st.caption(
-    "Research-use decision-support interface. Predictions outside the development-data "
-    "applicability domain should be treated as extrapolations or weakly supported estimates "
-    "and interpreted with appropriate engineering judgement."
+    "Research-use decision-support interface. Outside-domain predictions should be interpreted cautiously."
 )
