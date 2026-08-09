@@ -18,7 +18,8 @@ import streamlit as st
 st.set_page_config(
     page_title="Soil Sampling Disturbance Predictor",
     page_icon="🧪",
-    layout="wide",
+    layout="centered",
+    initial_sidebar_state="collapsed",
 )
 
 FEATURES = [
@@ -64,258 +65,34 @@ OPTIONAL_FILES = [
 st.markdown(
     """
     <style>
-    .block-container {
-        padding-top: 0.65rem;
-        padding-bottom: 1.25rem;
-        max-width: 1040px;
-    }
-
-    h1 {
-        color: #17365d;
-        font-weight: 740;
-        letter-spacing: -0.018em;
-        margin-bottom: 0.10rem;
-        font-size: 1.95rem;
-    }
-
-    h2, h3 {
-        color: #17365d;
-        font-weight: 700;
-    }
-
-    .section-label {
-        color: #17365d;
-        font-size: 0.98rem;
-        font-weight: 740;
-        margin: 0.20rem 0 0.50rem 0;
-    }
-
-    .status-good,
-    .status-warn,
-    .status-bad {
-        padding: 0.95rem 1.05rem;
-        border-radius: 10px;
-        margin: 0.65rem 0 0.4rem 0;
-    }
-
-    .status-good {
-        border-left: 5px solid #2e7d32;
-        background: #edf8ef;
-    }
-
-    .status-warn {
-        border-left: 5px solid #d68a00;
-        background: #fff8e7;
-    }
-
-    .status-bad {
-        border-left: 5px solid #c62828;
-        background: #fff0f0;
-    }
-
-    div[data-testid="stMetric"] {
-        border: 1px solid #e2e7ee;
-        padding: 0.70rem 0.80rem;
-        border-radius: 10px;
-        background: #ffffff;
-        min-height: 94px;
-    }
-
-    div[data-testid="stMetricLabel"] {
-        color: #344054;
-        font-weight: 650;
-    }
-
-    div[data-testid="stMetricValue"] {
-        color: #17365d;
-        font-weight: 760;
-    }
-
-    div[data-testid="stNumberInput"] input {
-        background: #f8fafc;
-    }
-
-    div.stButton > button[kind="primary"] {
-        min-height: 3.15rem;
-        border-radius: 8px;
-        font-weight: 760;
-        font-size: 1rem;
-    }
-
-    .quality-box {
-        border: 1px solid #e2e8f0;
-        background: #fffdf8;
-        border-radius: 10px;
-        padding: 0.85rem 1rem;
-        margin-top: 0.45rem;
-    }
-
-    .quality-title {
-        color: #17365d;
-        font-weight: 760;
-        margin-bottom: 0.35rem;
-    }
-
-    .quality-excellent {color:#2e7d32; font-weight:760;}
-    .quality-goodfair {color:#558b2f; font-weight:760;}
-    .quality-poor {color:#d18b00; font-weight:760;}
-    .quality-verypoor {color:#c62828; font-weight:760;}
-    .quality-na {color:#667085; font-weight:700;}
-
-    [data-testid="stSidebar"] {
-        background: #f4f7fb;
-        border-right: 1px solid #e1e7ef;
-    }
-
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
-        color: #17365d;
-    }
-
-
-    .summary-card {
-        border: 1px solid #e2e7ee;
-        border-radius: 10px;
-        background: #ffffff;
-        padding: 0.85rem 0.95rem;
-        min-height: 104px;
-    }
-
-    .summary-label {
-        color: #667085;
-        font-size: 0.82rem;
-        font-weight: 650;
-        margin-bottom: 0.15rem;
-    }
-
-    .summary-value {
-        color: #17365d;
-        font-size: 1.65rem;
-        font-weight: 760;
-        line-height: 1.1;
-    }
-
-    .summary-sub {
-        color: #667085;
-        font-size: 0.78rem;
-        margin-top: 0.25rem;
-    }
-
-    .compact-note {
-        color: #667085;
-        font-size: 0.82rem;
-        margin-top: 0.15rem;
-    }
-
-    .quality-inline {
-        font-size: 1.35rem;
-        line-height: 1.15;
-        margin-top: 0.10rem;
-    }
-
-
-    .block-container > div { gap: 0.35rem; }
-    [data-testid="stVerticalBlock"] { gap: 0.45rem; }
-    [data-testid="stHorizontalBlock"] { gap: 0.65rem; }
-
-    .summary-strip {
-        display: grid;
-        grid-template-columns: 1.25fr 1fr 1fr 1fr 1.15fr;
-        gap: 0.55rem;
-        margin: 0.25rem 0 0.45rem 0;
-    }
-
-    .summary-chip {
-        border: 1px solid #e1e6ed;
-        border-radius: 9px;
-        background: #ffffff;
-        padding: 0.58rem 0.68rem;
-        min-height: 72px;
-    }
-
-    .summary-chip-label {
-        color: #667085;
-        font-size: 0.72rem;
-        font-weight: 650;
-        margin-bottom: 0.10rem;
-    }
-
-    .summary-chip-value {
-        color: #17365d;
-        font-size: 1.18rem;
-        font-weight: 760;
-        line-height: 1.10;
-    }
-
-    .summary-chip-sub {
-        color: #667085;
-        font-size: 0.70rem;
-        margin-top: 0.12rem;
-    }
-
-    .ad-badge {
-        display: inline-block;
-        padding: 0.28rem 0.55rem;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        margin: 0.10rem 0.30rem 0.10rem 0;
-        border: 1px solid #d9e2ec;
-        background: #f8fafc;
-        color: #344054;
-    }
-
-    .status-good, .status-warn, .status-bad {
-        padding: 0.55rem 0.70rem;
-        margin: 0.25rem 0 0.25rem 0;
-        font-size: 0.82rem;
-    }
-
-    .quality-box {
-        padding: 0.60rem 0.70rem;
-        margin-top: 0.20rem;
-        font-size: 0.80rem;
-    }
-
-    div[data-testid="stMetric"] {
-        min-height: 76px !important;
-        padding: 0.55rem 0.60rem !important;
-    }
-
-    div[data-testid="stMetricValue"] {
-        font-size: 1.35rem !important;
-    }
-
-    div[data-testid="stNumberInput"] {
-        margin-bottom: -0.15rem;
-    }
-
-    .compact-note {
-        font-size: 0.72rem;
-        line-height: 1.15;
-    }
-
-    [data-testid="stSidebar"] {
-        min-width: 215px !important;
-        max-width: 215px !important;
-    }
-
-    [data-testid="stSidebar"] .block-container {
-        padding-top: 0.8rem;
-    }
-
-    @media (max-width: 900px) {
-        .summary-strip {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    div[data-testid="stDataFrame"] {
-        border: 1px solid #e3e8ef;
-        border-radius: 10px;
-        overflow: hidden;
-    }
+    :root {--ink:#17365d;--line:#294f79;--soft:#b8c8d8;--muted:#667085;}
+    .block-container{max-width:790px;padding-top:.8rem;padding-bottom:1.6rem;}
+    h1{color:var(--ink);text-align:center;font-size:2rem;font-weight:780;letter-spacing:-.02em;margin-bottom:.1rem;}
+    h2,h3{color:var(--ink);font-weight:740;}
+    .hero-subtitle{text-align:center;color:var(--muted);font-size:.86rem;margin-bottom:.8rem;}
+    .section-shell{border:3px solid var(--line);border-radius:14px;background:#fff;padding:.85rem .95rem .95rem;margin:.7rem 0;box-shadow:0 2px 0 rgba(23,54,93,.08);}
+    .section-head{display:flex;align-items:center;gap:.45rem;color:var(--ink);font-weight:780;font-size:1.02rem;padding-bottom:.45rem;margin-bottom:.6rem;border-bottom:2px solid #d5e0eb;}
+    .step-dot{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:#fff;font-size:.76rem;font-weight:800;}
+    .input-caption{color:var(--muted);font-size:.72rem;line-height:1.2;margin-top:-.08rem;}
+    div[data-testid="stNumberInput"] input{background:#fbfcfe;border:2px solid #b7c6d6!important;font-weight:650;}
+    div[data-testid="stNumberInput"] button{border-color:#b7c6d6!important;}
+    div.stButton>button[kind="primary"]{min-height:3.15rem;border-radius:10px;border:3px solid #17365d;font-weight:800;font-size:.96rem;box-shadow:0 2px 0 rgba(23,54,93,.16);}
+    .prediction-hero{border:3px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#f7fbff 0%,#fff 100%);padding:1rem;text-align:center;}
+    .prediction-label{color:var(--muted);font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+    .prediction-value{color:var(--ink);font-size:2.25rem;line-height:1.05;font-weight:820;margin:.18rem 0 .25rem;}
+    .quality-pill{display:inline-block;border:2px solid currentColor;border-radius:999px;padding:.28rem .7rem;font-weight:780;font-size:.9rem;background:#fff;}
+    .quality-excellent{color:#2e7d32}.quality-goodfair{color:#5b7f2b}.quality-poor{color:#bf7600}.quality-verypoor{color:#b42318}
+    .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.55rem;}
+    .mini-card{border:2px solid var(--soft);border-radius:10px;background:#fff;padding:.58rem .62rem;text-align:center;}
+    .mini-label{color:var(--muted);font-size:.69rem;font-weight:700}.mini-value{color:var(--ink);font-size:1.02rem;font-weight:800;margin-top:.08rem}.mini-sub{color:var(--muted);font-size:.67rem;margin-top:.06rem}
+    .status-good,.status-warn,.status-bad{border-radius:10px;padding:.62rem .72rem;margin-top:.5rem;font-size:.79rem;line-height:1.35}.status-good{border:2px solid #6cae75;background:#f0f8f1;color:#245c2b}.status-warn{border:2px solid #dca340;background:#fff8e9;color:#7f5100}.status-bad{border:2px solid #dc786f;background:#fff2f1;color:#8d1c13}
+    .criterion-row{display:grid;grid-template-columns:1fr 1fr;gap:.48rem;margin-bottom:.5rem}.criterion-box{border:2px solid var(--soft);border-radius:10px;background:#f5f9fd;padding:.52rem .6rem;font-size:.76rem;color:#35516f;text-align:center;font-weight:700}
+    .quality-box{border:2px solid #ddc78d;background:#fffaf0;border-radius:10px;padding:.62rem .72rem;font-size:.77rem;line-height:1.45;margin-top:.55rem}.quality-title{color:var(--ink);font-weight:780;margin-bottom:.22rem}
+    .shap-meta{border:2px solid #ccd8e5;border-radius:10px;background:#f8fafc;padding:.46rem .62rem;font-size:.74rem;color:#35516f;margin-bottom:.45rem;text-align:center}
+    div[data-testid="stDataFrame"]{border:2px solid #aebfd0;border-radius:10px;overflow:hidden;}
+    [data-testid="stSidebar"]{background:#f3f7fb;border-right:2px solid #9db2c7;}
+    .footer-note{color:var(--muted);text-align:center;font-size:.71rem;margin-top:.65rem;}
+    @media(max-width:700px){.block-container{max-width:96vw}.result-grid,.criterion-row{grid-template-columns:1fr}}
     </style>
     """,
     unsafe_allow_html=True,
@@ -615,7 +392,7 @@ def make_display_explanation(explanation):
 
 def make_waterfall(explanation):
     display_explanation = make_display_explanation(explanation)
-    plt.figure(figsize=(6.2, 3.5))
+    plt.figure(figsize=(6.6, 4.1))
     shap.plots.waterfall(
         display_explanation,
         max_display=len(FEATURES),
@@ -724,81 +501,45 @@ multivariate_threshold = float(
 # APP HEADER AND SIDEBAR
 # =============================================================================
 st.title("Soil Sampling Disturbance Prediction")
-st.caption(
-    "Predict sample disturbance (Δe/e₀) using the final XGBoost model generated by the research pipeline."
-)
+st.markdown('<div class="hero-subtitle">Final XGBoost deployment model with applicability-domain and local SHAP interpretation</div>', unsafe_allow_html=True)
 
 with st.sidebar:
-    st.header("Research model")
+    st.markdown("### Research model")
     st.success("Research outputs loaded")
-    st.caption(
-        "Using the saved final model and applicability-domain criteria from the research pipeline."
-    )
-    st.markdown("`best_model.joblib`")
-    st.markdown("`applicability_domain.xlsx`")
-
-    st.divider()
-    st.subheader("Applicability criteria")
-    st.write("• Observed min–max range")
-    st.write("• 1st–99th percentile robust range")
-    st.write("• Standardized multivariate distance")
-    st.write("• Combined AD = robust range AND multivariate criterion")
-    st.write("• Sample quality classified from predicted Δe/e₀")
-
-    st.divider()
-    st.info(
-        "No model fitting, tuning, or validation is performed in this app. "
-        "Predictions use the final model generated by the research pipeline."
-    )
+    st.caption("Saved final XGBoost model and applicability-domain outputs are being used.")
+    st.markdown("**Model files**")
+    st.code("best_model.joblib\napplicability_domain.xlsx", language="text")
+    st.markdown("**Applicability domain**")
+    st.caption("Observed range • 1st–99th percentile range • standardized multivariate distance")
+    st.info("No fitting, tuning, or validation is performed in this interface.")
 
 
 # =============================================================================
 # INPUTS
 # =============================================================================
-st.markdown(
-    '<div class="section-label">1. Input parameters</div>',
-    unsafe_allow_html=True,
-)
+st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">1</span>Input parameters</div>', unsafe_allow_html=True)
 st.caption("Values outside the development range are allowed so extrapolation can be flagged.")
-
 input_values = {}
 
 def render_input(feature, col):
     d = domain_lookup[feature]
     default = float(d["mean"])
     span = max(d["maximum"] - d["minimum"], abs(d["maximum"]), 1.0)
-
     ui_min = max(0.0, d["minimum"] - 0.5 * span) if feature != "VerticalStress" else 0.0
     ui_max = d["maximum"] + 0.75 * span
     step = 0.1 if feature in {"OCR", "AreaRatio", "CuttingEdge", "PlasticityIndex"} else 1.0
-
     with col:
-        input_values[feature] = st.number_input(
-            FEATURE_LABELS[feature],
-            min_value=float(ui_min),
-            max_value=float(ui_max),
-            value=float(default),
-            step=float(step),
-            format="%.3f" if feature == "OCR" else "%.2f",
-        )
-        st.markdown(
-            f'<div class="compact-note">'
-            f'Obs. {d["minimum"]:.3g}–{d["maximum"]:.3g}<br>'
-            f'1–99% {d["p01"]:.3g}–{d["p99"]:.3g}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
+        input_values[feature] = st.number_input(FEATURE_LABELS[feature], min_value=float(ui_min), max_value=float(ui_max), value=float(default), step=float(step), format="%.3f" if feature == "OCR" else "%.2f")
+        st.markdown(f'<div class="input-caption">Observed: {d["minimum"]:.3g}–{d["maximum"]:.3g} &nbsp;|&nbsp; 1st–99th: {d["p01"]:.3g}–{d["p99"]:.3g}</div>', unsafe_allow_html=True)
 
-input_cols = st.columns(5, gap="small")
-for feature, col in zip(FEATURES, input_cols):
-    render_input(feature, col)
-
-predict_clicked = st.button(
-    "▶  PREDICT SAMPLING DISTURBANCE",
-    type="primary",
-    use_container_width=True,
-)
-
+r1=st.columns(2,gap="medium")
+render_input(FEATURES[0],r1[0]); render_input(FEATURES[1],r1[1])
+r2=st.columns(2,gap="medium")
+render_input(FEATURES[2],r2[0]); render_input(FEATURES[3],r2[1])
+r3=st.columns([0.18,0.64,0.18])
+render_input(FEATURES[4],r3[1])
+predict_clicked=st.button("▶  PREDICT SAMPLING DISTURBANCE",type="primary",use_container_width=True)
+st.markdown("</div>",unsafe_allow_html=True)
 
 # =============================================================================
 # RESULTS
@@ -821,155 +562,45 @@ if predict_clicked:
         prediction,
         float(input_df.iloc[0]["OCR"]),
     )
+    st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">2</span>Prediction summary</div>', unsafe_allow_html=True)
+    quality_css=quality["css"]
+    observed_text="Inside" if ad["strict_inside"] else "Outside"
+    combined_text="Within" if ad["inside_combined"] else "Outside"
+    st.markdown(f"""<div class="prediction-hero"><div class="prediction-label">Predicted sample disturbance</div><div class="prediction-value">Δe/e₀ = {prediction:.4f}</div><div class="{quality_css} quality-pill">{quality["label"]}</div><div style="color:#667085;font-size:.74rem;margin-top:.25rem;">{quality["criterion"]}</div><div class="result-grid"><div class="mini-card"><div class="mini-label">Observed range</div><div class="mini-value">{observed_text}</div></div><div class="mini-card"><div class="mini-label">Combined AD</div><div class="mini-value">{combined_text}</div></div><div class="mini-card"><div class="mini-label">Multivariate distance</div><div class="mini-value">{ad["multivariate_distance"]:.3f}</div><div class="mini-sub">Threshold {ad["multivariate_threshold"]:.3f}</div></div></div></div>""",unsafe_allow_html=True)
+    if not ad["inside_combined"] or not ad["strict_inside"]:
+        st.markdown(f'<div class="{ad["css"]}"><b>{ad["display_level"]}</b><br>{ad["message"]}</div>',unsafe_allow_html=True)
+    st.markdown("</div>",unsafe_allow_html=True)
 
-    st.divider()
-    st.markdown(
-        '<div class="section-label">2. Prediction summary</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">3</span>Applicability-domain assessment</div>', unsafe_allow_html=True)
+    display_ad=ad["feature_table"].copy()
+    display_ad["Input"]=display_ad["Input"].round(3)
+    display_ad["Observed"]=display_ad.apply(lambda r:f'{r["Observed min"]:.3g}–{r["Observed max"]:.3g}',axis=1)
+    display_ad["1st–99th"]=display_ad.apply(lambda r:f'{r["1st percentile"]:.3g}–{r["99th percentile"]:.3g}',axis=1)
+    display_ad=display_ad[["Parameter","Input","Observed","1st–99th","Status"]]
+    robust_text="PASS" if ad["robust_inside"] else "FAIL"
+    multi_text="PASS" if ad["inside_multivariate"] else "FAIL"
+    st.markdown(f'<div class="criterion-row"><div class="criterion-box">1st–99th percentile criterion: {robust_text}</div><div class="criterion-box">Multivariate-distance criterion: {multi_text}</div></div>',unsafe_allow_html=True)
+    st.dataframe(display_ad,use_container_width=True,hide_index=True,height=220)
+    st.markdown("""<div class="quality-box"><div class="quality-title">Sample-quality thresholds</div><b style="color:#2e7d32;">Excellent:</b> Δe/e₀ &lt; 0.04 &nbsp;&nbsp; <b style="color:#5b7f2b;">Good–Fair:</b> 0.04 ≤ Δe/e₀ &lt; 0.07<br><b style="color:#bf7600;">Poor:</b> 0.07 ≤ Δe/e₀ &lt; 0.14 &nbsp;&nbsp; <b style="color:#b42318;">Very Poor:</b> Δe/e₀ ≥ 0.14</div>""",unsafe_allow_html=True)
+    st.markdown("</div>",unsafe_allow_html=True)
 
-    summary_left, summary_right = st.columns([0.95, 1.55], gap="medium")
-
-    with summary_left:
-        st.markdown(
-            f"""
-            <div class="summary-card">
-                <div class="summary-label">Predicted sample disturbance</div>
-                <div class="summary-value">Δe/e₀ = {prediction:.4f}</div>
-                <div class="summary-sub">Final saved XGBoost model</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f"""
-            <div class="summary-card" style="margin-top:0.55rem;">
-                <div class="summary-label">Lunne sample quality</div>
-                <div class="{quality["css"]} quality-inline">{quality["label"]}</div>
-                <div class="summary-sub">{quality["criterion"]}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with summary_right:
-        r1, r2, r3 = st.columns(3)
-        r1.metric(
-            "Observed range",
-            "Inside" if ad["strict_inside"] else "Outside",
-        )
-        r2.metric(
-            "Combined AD",
-            "Within" if ad["inside_combined"] else "Outside",
-        )
-        r3.metric(
-            "Distance, D",
-            f"{ad['multivariate_distance']:.3f}",
-        )
-        st.caption(
-            f"Multivariate threshold = {ad['multivariate_threshold']:.3f}"
-        )
-
-    st.markdown(
-        f'<div class="{ad["css"]}"><b>{ad["display_level"]}</b><br>{ad["message"]}</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        '<div class="section-label">3. Applicability-domain assessment</div>',
-        unsafe_allow_html=True,
-    )
-
-    display_ad = ad["feature_table"].copy()
-    display_ad["Input"] = display_ad["Input"].round(3)
-    display_ad["Observed range"] = display_ad.apply(
-        lambda r: f'{r["Observed min"]:.3g}–{r["Observed max"]:.3g}',
-        axis=1,
-    )
-    display_ad["1st–99th range"] = display_ad.apply(
-        lambda r: f'{r["1st percentile"]:.3g}–{r["99th percentile"]:.3g}',
-        axis=1,
-    )
-    display_ad = display_ad[
-        ["Parameter", "Input", "Observed range", "1st–99th range", "Status"]
-    ]
-
-    ad_left, ad_right = st.columns([1.45, 0.75], gap="medium")
-
-    with ad_left:
-        st.dataframe(
-            display_ad,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-    with ad_right:
-        st.markdown("**Applicability checks**")
-        st.write(
-            "✓ Robust range" if ad["robust_inside"]
-            else "✕ Robust range"
-        )
-        st.write(
-            "✓ Multivariate distance" if ad["inside_multivariate"]
-            else "✕ Multivariate distance"
-        )
-        st.caption(
-            "Combined AD requires both criteria to pass."
-        )
-
-        st.markdown(
-            """
-            <div class="quality-box">
-                <div class="quality-title">Sample-quality thresholds</div>
-                <div><span class="quality-excellent">● Excellent</span>: Δe/e₀ &lt; 0.04</div>
-                <div><span class="quality-goodfair">● Good–Fair</span>: 0.04–&lt;0.07</div>
-                <div><span class="quality-poor">● Poor</span>: 0.07–&lt;0.14</div>
-                <div><span class="quality-verypoor">● Very Poor</span>: ≥ 0.14</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    st.markdown(
-        '<div class="section-label">4. Local SHAP explanation</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">4</span>Local SHAP explanation</div>', unsafe_allow_html=True)
 
     base_value = float(np.asarray(explanation.base_values).reshape(-1)[0])
     shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
     reconstructed = base_value + shap_sum
-
-    st.caption(
-        f"Baseline {base_value:.4f}  •  ΣSHAP {format_shap_value(shap_sum)}  •  "
-        f"Baseline + SHAP {reconstructed:.4f}"
-    )
-
-    shap_left, shap_right = st.columns([1.2, 0.8], gap="medium")
-
-    with shap_left:
-        st.markdown("**SHAP waterfall plot**")
-        fig = make_waterfall(explanation)
-        st.pyplot(fig, use_container_width=True)
-        plt.close(fig)
-
-    with shap_right:
-        st.markdown("**SHAP contributions (local)**")
-        shap_display = shap_table.drop(columns=["|SHAP|"]).copy()
-        shap_display["Input"] = shap_display["Input"].map(
-            lambda x: f"{float(x):.3f}"
-        )
-        shap_display["SHAP contribution"] = shap_display[
-            "SHAP contribution"
-        ].map(format_shap_value)
-        st.dataframe(
-            shap_display,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-    st.caption(
-        "Positive SHAP values increase the prediction; negative values decrease it."
-    )
+    st.markdown(f'<div class="shap-meta">Baseline = {base_value:.4f} &nbsp;•&nbsp; Σ SHAP = {format_shap_value(shap_sum)} &nbsp;•&nbsp; Baseline + SHAP = {reconstructed:.4f}</div>',unsafe_allow_html=True)
+    st.markdown("**SHAP waterfall plot**")
+    fig=make_waterfall(explanation)
+    st.pyplot(fig,use_container_width=True)
+    plt.close(fig)
+    st.markdown("**Local SHAP contributions**")
+    shap_display=shap_table.drop(columns=["|SHAP|"]).copy()
+    shap_display["Input"]=shap_display["Input"].map(lambda x:f"{float(x):.3f}")
+    shap_display["SHAP contribution"]=shap_display["SHAP contribution"].map(format_shap_value)
+    st.dataframe(shap_display,use_container_width=True,hide_index=True,height=220)
+    st.caption("Positive SHAP values increase the prediction; negative values decrease it.")
+    st.markdown("</div>",unsafe_allow_html=True)
 
     with st.expander("Model details"):
         st.write(
@@ -1026,6 +657,4 @@ if predict_clicked:
     )
 
 
-st.caption(
-    "Research-use decision-support interface. Outside-domain predictions should be interpreted cautiously."
-)
+st.markdown('<div class="footer-note">Research-use decision-support interface. Outside-domain predictions should be interpreted cautiously.</div>',unsafe_allow_html=True)
