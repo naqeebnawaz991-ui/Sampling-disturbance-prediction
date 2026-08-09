@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from datetime import datetime
 import io
 import json
 
@@ -65,93 +66,335 @@ OPTIONAL_FILES = [
 st.markdown(
     """
     <style>
-    :root {--ink:#17365d;--line:#294f79;--soft:#b8c8d8;--muted:#667085;--bluefill:#eef6ff;--greenfill:#eef9f0;--purplefill:#f7f0ff;--orangefill:#fff6eb;--redfill:#fff0f0;}
-    .block-container{max-width:790px;padding-top:.8rem;padding-bottom:1.6rem;}
-    h1{color:var(--ink);text-align:center;font-size:2rem;font-weight:780;letter-spacing:-.02em;margin-bottom:.1rem;}
-    h2,h3{color:var(--ink);font-weight:740;}
-    .hero-subtitle{text-align:center;color:var(--muted);font-size:.86rem;margin-bottom:.8rem;}
-    .section-shell{border:4px solid var(--line);border-radius:16px;background:#fff;padding:.95rem 1rem 1rem;margin:.75rem 0;box-shadow:0 3px 0 rgba(23,54,93,.10);}
-    .section-head{display:flex;align-items:center;gap:.55rem;color:var(--ink);font-weight:820;font-size:1.12rem;padding-bottom:.55rem;margin-bottom:.55rem;border-bottom:3px solid #d5e0eb;}
-    .step-dot{display:inline-flex;align-items:center;justify-content:center;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--ink);color:#fff;font-size:.88rem;font-weight:850;}
-    .input-caption{color:var(--muted);font-size:.74rem;line-height:1.2;margin-top:.04rem;}
-    div[data-testid="stNumberInput"] label p{
-        font-size:.98rem!important;
-        font-weight:760!important;
-        color:#17365d!important;
+    :root{
+        --navy:#092d63;
+        --navy2:#123f7a;
+        --blue:#164ea5;
+        --line:#b8c7d9;
+        --soft:#f6f9fd;
+        --softblue:#f3f8ff;
+        --muted:#667085;
+        --green:#147a2e;
+        --greenbg:#eef9f0;
+        --gold:#a56500;
+        --goldbg:#fff8e9;
+        --purple:#6335b5;
+        --purplebg:#f7f2ff;
+        --orange:#c46b00;
+        --orangebg:#fff7ec;
     }
-    div[data-testid="stNumberInput"] input{
-        font-size:1.05rem!important;
-        font-weight:760!important;
-        min-height:2.75rem!important;
+
+    .block-container{
+        max-width:820px;
+        padding-top:.65rem;
+        padding-bottom:1.8rem;
     }
-    .input-card{
-        border:3px solid #b7c6d6;
-        border-radius:12px;
-        padding:.60rem .68rem .48rem;
-        background:#f8fbff;
-        margin-bottom:.35rem;
+
+    h1{
+        color:var(--navy);
+        text-align:left;
+        font-size:2.05rem;
+        font-weight:820;
+        letter-spacing:-.02em;
+        margin-bottom:.08rem;
     }
-    .input-card-blue{background:var(--bluefill);border-color:#9fc3ef;}
-    .input-card-green{background:var(--greenfill);border-color:#a7d7ad;}
-    .input-card-purple{background:var(--purplefill);border-color:#cbb3ef;}
-    .input-card-orange{background:var(--orangefill);border-color:#edc28e;}
-    .input-card-red{background:var(--redfill);border-color:#efb1b1;}
-    .step1-note{
-        color:#667085;
-        font-size:.78rem;
-        margin:-.05rem 0 .45rem 0;
+
+    .hero-subtitle{
+        color:#344054;
+        font-size:.86rem;
+        margin-bottom:.9rem;
     }
-    .step2-shell{
-        border:4px solid #2f7d3d;
-        border-radius:16px;
-        background:linear-gradient(180deg,#f6fcf7 0%,#ffffff 100%);
+
+    .app-header{
+        border:2px solid var(--navy);
+        border-radius:14px;
+        background:#fff;
+        padding:1rem 1.1rem .85rem;
+        margin-bottom:1rem;
+        box-shadow:0 2px 0 rgba(9,45,99,.08);
+    }
+
+    .section-shell,
+    .result-shell,
+    .history-shell{
+        border:2px solid #c7d2df;
+        border-radius:14px;
+        background:#fff;
         padding:.95rem 1rem 1rem;
-        margin:.75rem 0;
-        box-shadow:0 3px 0 rgba(47,125,61,.10);
+        margin:.8rem 0;
+        position:relative;
+        box-shadow:0 1px 2px rgba(15,23,42,.04);
     }
-    .step2-head{
+
+    .section-head{
         display:flex;
         align-items:center;
-        gap:.55rem;
-        color:#1f6a2d;
-        font-weight:820;
+        gap:.5rem;
+        color:var(--navy);
+        font-weight:800;
         font-size:1.12rem;
-        padding-bottom:.55rem;
-        margin-bottom:.65rem;
-        border-bottom:3px solid #cfe6d3;
+        margin-bottom:.75rem;
     }
-    .step2-dot{
+
+    .step-badge{
         display:inline-flex;
         align-items:center;
         justify-content:center;
-        width:1.8rem;
-        height:1.8rem;
-        border-radius:50%;
-        background:#1f6a2d;
-        color:white;
-        font-size:.88rem;
+        width:2.15rem;
+        height:2.15rem;
+        border-radius:8px;
+        background:var(--navy);
+        color:#fff;
+        font-size:1rem;
         font-weight:850;
+        box-shadow:0 2px 0 rgba(9,45,99,.18);
     }
 
-    div[data-testid="stNumberInput"] input{background:#fbfcfe;border:2px solid #b7c6d6!important;font-weight:650;}
-    div[data-testid="stNumberInput"] button{border-color:#b7c6d6!important;}
-    div.stButton>button[kind="primary"]{min-height:3.15rem;border-radius:10px;border:3px solid #17365d;font-weight:800;font-size:.96rem;box-shadow:0 2px 0 rgba(23,54,93,.16);}
-    .prediction-hero{border:3px solid #9bc8a4;border-radius:14px;background:linear-gradient(180deg,#f8fdf9 0%,#fff 100%);padding:1rem;text-align:center;}
-    .prediction-label{color:var(--muted);font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
-    .prediction-value{color:var(--ink);font-size:2.25rem;line-height:1.05;font-weight:820;margin:.18rem 0 .25rem;}
-    .quality-pill{display:inline-block;border:2px solid currentColor;border-radius:999px;padding:.28rem .7rem;font-weight:780;font-size:.9rem;background:#fff;}
-    .quality-excellent{color:#2e7d32}.quality-goodfair{color:#5b7f2b}.quality-poor{color:#bf7600}.quality-verypoor{color:#b42318}
-    .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.55rem;}
-    .mini-card{border:2px solid var(--soft);border-radius:10px;background:#fff;padding:.58rem .62rem;text-align:center;}
-    .mini-label{color:var(--muted);font-size:.69rem;font-weight:700}.mini-value{color:var(--ink);font-size:1.02rem;font-weight:800;margin-top:.08rem}.mini-sub{color:var(--muted);font-size:.67rem;margin-top:.06rem}
-    .status-good,.status-warn,.status-bad{border-radius:10px;padding:.62rem .72rem;margin-top:.5rem;font-size:.79rem;line-height:1.35}.status-good{border:2px solid #6cae75;background:#f0f8f1;color:#245c2b}.status-warn{border:2px solid #dca340;background:#fff8e9;color:#7f5100}.status-bad{border:2px solid #dc786f;background:#fff2f1;color:#8d1c13}
-    .criterion-row{display:grid;grid-template-columns:1fr 1fr;gap:.48rem;margin-bottom:.5rem}.criterion-box{border:2px solid var(--soft);border-radius:10px;background:#f5f9fd;padding:.52rem .6rem;font-size:.76rem;color:#35516f;text-align:center;font-weight:700}
-    .quality-box{border:2px solid #ddc78d;background:#fffaf0;border-radius:10px;padding:.62rem .72rem;font-size:.77rem;line-height:1.45;margin-top:.55rem}.quality-title{color:var(--ink);font-weight:780;margin-bottom:.22rem}
-    .shap-meta{border:2px solid #ccd8e5;border-radius:10px;background:#f8fafc;padding:.46rem .62rem;font-size:.74rem;color:#35516f;margin-bottom:.45rem;text-align:center}
-    div[data-testid="stDataFrame"]{border:2px solid #aebfd0;border-radius:10px;overflow:hidden;}
-    [data-testid="stSidebar"]{background:#f3f7fb;border-right:2px solid #9db2c7;}
-    .footer-note{color:var(--muted);text-align:center;font-size:.71rem;margin-top:.65rem;}
-    @media(max-width:700px){.block-container{max-width:96vw}.result-grid,.criterion-row{grid-template-columns:1fr}}
+    .section-icon{
+        font-size:1.35rem;
+        line-height:1;
+    }
+
+    .input-note{
+        color:var(--muted);
+        font-size:.78rem;
+        margin:-.15rem 0 .55rem;
+    }
+
+    /* Same style/color for every input */
+    .input-wrap{
+        border:2px solid #b8cae1;
+        border-radius:11px;
+        background:var(--softblue);
+        padding:.55rem .65rem .48rem;
+        margin-bottom:.35rem;
+    }
+
+    div[data-testid="stNumberInput"] label p{
+        color:var(--navy)!important;
+        font-size:.96rem!important;
+        font-weight:760!important;
+    }
+
+    div[data-testid="stNumberInput"] input{
+        background:#fff!important;
+        border:1.8px solid #aebfd3!important;
+        min-height:2.7rem!important;
+        font-size:1.04rem!important;
+        font-weight:760!important;
+        color:#111827!important;
+    }
+
+    div[data-testid="stNumberInput"] button{
+        border-color:#aebfd3!important;
+        background:#f7f9fc!important;
+    }
+
+    .input-caption{
+        color:#385b8e;
+        font-size:.72rem;
+        line-height:1.25;
+        margin-top:.08rem;
+    }
+
+    div.stButton > button[kind="primary"]{
+        min-height:3rem;
+        border-radius:9px;
+        border:2px solid #072653;
+        background:var(--navy);
+        color:#fff;
+        font-weight:800;
+        font-size:.95rem;
+        box-shadow:0 2px 0 rgba(9,45,99,.14);
+    }
+
+    div.stButton > button[kind="primary"]:hover{
+        background:var(--navy2);
+        border-color:#072653;
+    }
+
+    .success-line{
+        border:1.8px solid #a8d8b1;
+        background:#effaf1;
+        color:#176b2b;
+        border-radius:9px;
+        padding:.7rem .8rem;
+        font-size:.88rem;
+        margin-bottom:.75rem;
+    }
+
+    .result-two{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:.75rem;
+        margin-bottom:.75rem;
+    }
+
+    .prediction-box{
+        border:2px solid #acd0ff;
+        border-radius:12px;
+        background:linear-gradient(180deg,#f5f9ff 0%,#fff 100%);
+        padding:.9rem;
+        text-align:center;
+    }
+
+    .quality-box-main{
+        border:2px solid #efc16e;
+        border-radius:12px;
+        background:linear-gradient(180deg,#fffaf0 0%,#fff 100%);
+        padding:.9rem;
+        text-align:center;
+    }
+
+    .box-label{
+        color:var(--navy);
+        font-size:.82rem;
+        font-weight:720;
+        margin-bottom:.15rem;
+    }
+
+    .pred-value{
+        color:#0a44a2;
+        font-size:2.65rem;
+        font-weight:850;
+        line-height:1.05;
+        margin:.18rem 0;
+    }
+
+    .quality-pill{
+        display:inline-block;
+        border:1.7px solid currentColor;
+        border-radius:999px;
+        padding:.3rem .8rem;
+        font-weight:820;
+        font-size:1.02rem;
+        background:#fff;
+        margin:.2rem 0;
+    }
+
+    .quality-excellent{color:#2e7d32;}
+    .quality-goodfair{color:#a56500;}
+    .quality-poor{color:#c46b00;}
+    .quality-verypoor{color:#b42318;}
+
+    .result-grid{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:.55rem;
+    }
+
+    .mini-card{
+        border:2px solid #b8c7d9;
+        border-radius:10px;
+        background:#fff;
+        padding:.65rem .55rem;
+        text-align:center;
+        min-height:95px;
+    }
+
+    .mini-card.blue{border-color:#a9c8ed;background:#f6faff;}
+    .mini-card.green{border-color:#a8d3ad;background:#f7fcf8;}
+    .mini-card.purple{border-color:#c7b0e9;background:#faf7ff;}
+    .mini-card.orange{border-color:#efc48b;background:#fffaf3;}
+
+    .mini-label{
+        font-size:.72rem;
+        font-weight:760;
+        margin-bottom:.18rem;
+    }
+
+    .mini-value{
+        font-size:1.25rem;
+        font-weight:850;
+        color:var(--navy);
+    }
+
+    .mini-sub{
+        color:var(--muted);
+        font-size:.68rem;
+        margin-top:.15rem;
+        line-height:1.2;
+    }
+
+    .status-good,.status-warn,.status-bad{
+        border-radius:9px;
+        padding:.65rem .75rem;
+        margin-top:.55rem;
+        font-size:.78rem;
+        line-height:1.35;
+    }
+    .status-good{border:1.8px solid #9fd0a8;background:#eff8f1;color:#226a31;}
+    .status-warn{border:1.8px solid #e4b35b;background:#fff8e9;color:#805000;}
+    .status-bad{border:1.8px solid #dc8a82;background:#fff2f1;color:#8d1c13;}
+
+    div[data-testid="stDataFrame"]{
+        border:1.8px solid #c8d3df;
+        border-radius:9px;
+        overflow:hidden;
+    }
+
+    .technical-head{
+        color:var(--navy);
+        font-weight:800;
+        font-size:1rem;
+        margin:.3rem 0 .45rem;
+    }
+
+    .criterion-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:.5rem;
+        margin:.4rem 0;
+    }
+
+    .criterion-box{
+        border:1.8px solid #b8c7d9;
+        border-radius:9px;
+        background:#f7f9fc;
+        padding:.5rem;
+        text-align:center;
+        color:#35516f;
+        font-size:.75rem;
+        font-weight:700;
+    }
+
+    .threshold-box{
+        border:1.8px solid #e2c789;
+        background:#fffaf0;
+        border-radius:9px;
+        padding:.6rem .7rem;
+        font-size:.76rem;
+        line-height:1.45;
+        margin-top:.5rem;
+    }
+
+    .shap-meta{
+        border:1.8px solid #c9d6e4;
+        border-radius:9px;
+        background:#f8fafc;
+        padding:.5rem .65rem;
+        text-align:center;
+        font-size:.75rem;
+        color:#35516f;
+        margin-bottom:.45rem;
+    }
+
+    [data-testid="stSidebar"]{
+        background:#f5f8fc;
+        border-right:1.8px solid #b9c8d7;
+    }
+
+    .footer-note{
+        color:var(--muted);
+        text-align:center;
+        font-size:.71rem;
+        margin-top:.7rem;
+    }
+
+    @media(max-width:700px){
+        .block-container{max-width:96vw;}
+        .result-two,.result-grid,.criterion-row{grid-template-columns:1fr;}
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -559,8 +802,17 @@ multivariate_threshold = float(
 # =============================================================================
 # APP HEADER AND SIDEBAR
 # =============================================================================
-st.title("Soil Sampling Disturbance Prediction")
-st.markdown('<div class="hero-subtitle">Final XGBoost deployment model with applicability-domain and local SHAP interpretation</div>', unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="app-header">
+        <h1>📊 Soil Sampling Disturbance Prediction</h1>
+        <div class="hero-subtitle">
+            Enter sampler geometry and soil parameters to predict Δe/e₀ using the final XGBoost model.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.sidebar:
     st.markdown("### Research model")
@@ -578,23 +830,16 @@ with st.sidebar:
 # =============================================================================
 st.markdown(
     '<div class="section-shell">'
-    '<div class="section-head"><span class="step-dot">1</span>INPUT PARAMETERS</div>',
+    '<div class="section-head"><span class="step-badge">1</span>'
+    '<span class="section-icon">⚙️</span>Input Parameters for Prediction</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<div class="step1-note">Enter the five model inputs. Values outside the development range are allowed so extrapolation can be flagged.</div>',
+    '<div class="input-note">Enter the five model inputs. Values outside the development range are allowed and will be flagged.</div>',
     unsafe_allow_html=True,
 )
 
 input_values = {}
-
-CARD_CLASSES = {
-    "AreaRatio": "input-card-blue",
-    "CuttingEdge": "input-card-green",
-    "PlasticityIndex": "input-card-purple",
-    "OCR": "input-card-orange",
-    "VerticalStress": "input-card-red",
-}
 
 def render_input(feature, col):
     d = domain_lookup[feature]
@@ -605,7 +850,7 @@ def render_input(feature, col):
     step = 0.1 if feature in {"OCR", "AreaRatio", "CuttingEdge", "PlasticityIndex"} else 1.0
 
     with col:
-        st.markdown(f'<div class="input-card {CARD_CLASSES[feature]}">', unsafe_allow_html=True)
+        st.markdown('<div class="input-wrap">', unsafe_allow_html=True)
         input_values[feature] = st.number_input(
             FEATURE_LABELS[feature],
             min_value=float(ui_min),
@@ -622,23 +867,27 @@ def render_input(feature, col):
             unsafe_allow_html=True,
         )
 
-r1 = st.columns(2, gap="small")
+r1 = st.columns(2, gap="medium")
 render_input(FEATURES[0], r1[0])
 render_input(FEATURES[1], r1[1])
 
-r2 = st.columns(2, gap="small")
+r2 = st.columns(2, gap="medium")
 render_input(FEATURES[2], r2[0])
 render_input(FEATURES[3], r2[1])
 
-r3 = st.columns([0.08, 0.84, 0.08])
+r3 = st.columns([0.12, 0.76, 0.12])
 render_input(FEATURES[4], r3[1])
 
 predict_clicked = st.button(
-    "▶  PREDICT SAMPLING DISTURBANCE",
+    "🧠  Predict Sampling Disturbance",
     type="primary",
     use_container_width=True,
 )
 st.markdown("</div>", unsafe_allow_html=True)
+
+
+if "prediction_history" not in st.session_state:
+    st.session_state.prediction_history = []
 
 # =============================================================================
 # RESULTS
@@ -661,47 +910,185 @@ if predict_clicked:
         prediction,
         float(input_df.iloc[0]["OCR"]),
     )
-    st.markdown('<div class="step2-shell"><div class="step2-head"><span class="step2-dot">2</span>PREDICTION SUMMARY</div>', unsafe_allow_html=True)
-    quality_css=quality["css"]
-    observed_text="Inside" if ad["strict_inside"] else "Outside"
-    combined_text="Within" if ad["inside_combined"] else "Outside"
-    st.markdown(f"""<div class="prediction-hero"><div class="prediction-label">Predicted sample disturbance</div><div class="prediction-value">Δe/e₀ = {prediction:.4f}</div><div class="{quality_css} quality-pill">{quality["label"]}</div><div style="color:#667085;font-size:.74rem;margin-top:.25rem;">{quality["criterion"]}</div><div class="result-grid"><div class="mini-card"><div class="mini-label">Observed range</div><div class="mini-value">{observed_text}</div></div><div class="mini-card"><div class="mini-label">Combined AD</div><div class="mini-value">{combined_text}</div></div><div class="mini-card"><div class="mini-label">Multivariate distance</div><div class="mini-value">{ad["multivariate_distance"]:.3f}</div><div class="mini-sub">Threshold {ad["multivariate_threshold"]:.3f}</div></div></div></div>""",unsafe_allow_html=True)
+    st.markdown(
+        '<div class="result-shell">'
+        '<div class="section-head"><span class="step-badge">2</span>'
+        '<span class="section-icon">🔮</span>Prediction Result</div>',
+        unsafe_allow_html=True,
+    )
+
+    quality_css = quality["css"]
+    observed_text = "INSIDE" if ad["strict_inside"] else "OUTSIDE"
+    combined_text = "WITHIN" if ad["inside_combined"] else "OUTSIDE"
+    ad_text = "WITHIN" if ad["inside_multivariate"] else "OUTSIDE"
+
+    st.markdown(
+        f'<div class="success-line">✅ Prediction complete! '
+        f'Δe/e₀ value: <b>{prediction:.4f}</b></div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"""
+        <div class="result-two">
+            <div class="prediction-box">
+                <div class="box-label">Predicted Δe/e₀</div>
+                <div class="pred-value">{prediction:.4f}</div>
+            </div>
+            <div class="quality-box-main">
+                <div class="box-label">Sample Quality Category</div>
+                <div class="{quality_css} quality-pill">{quality["label"]}</div>
+                <div style="font-size:.72rem;color:#667085;margin-top:.12rem;">{quality["criterion"]}</div>
+            </div>
+        </div>
+
+        <div class="result-grid">
+            <div class="mini-card blue">
+                <div class="mini-label" style="color:#174da1;">Observed Range</div>
+                <div class="mini-value">{observed_text}</div>
+                <div class="mini-sub">All inputs within observed min–max.</div>
+            </div>
+            <div class="mini-card green">
+                <div class="mini-label" style="color:#2f7d3d;">Combined AD</div>
+                <div class="mini-value">{combined_text}</div>
+                <div class="mini-sub">Robust range + multivariate criterion.</div>
+            </div>
+            <div class="mini-card purple">
+                <div class="mini-label" style="color:#6335b5;">Multivariate Distance, D</div>
+                <div class="mini-value">{ad["multivariate_distance"]:.3f}</div>
+                <div class="mini-sub">Threshold = {ad["multivariate_threshold"]:.3f}</div>
+            </div>
+            <div class="mini-card orange">
+                <div class="mini-label" style="color:#c46b00;">AD Criterion</div>
+                <div class="mini-value">{ad_text}</div>
+                <div class="mini-sub">D compared with saved threshold.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     if not ad["inside_combined"] or not ad["strict_inside"]:
-        st.markdown(f'<div class="{ad["css"]}"><b>{ad["display_level"]}</b><br>{ad["message"]}</div>',unsafe_allow_html=True)
-    st.markdown("</div>",unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="{ad["css"]}"><b>{ad["display_level"]}</b><br>{ad["message"]}</div>',
+            unsafe_allow_html=True,
+        )
 
-    st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">3</span>Applicability-domain assessment</div>', unsafe_allow_html=True)
-    display_ad=ad["feature_table"].copy()
-    display_ad["Input"]=display_ad["Input"].round(3)
-    display_ad["Observed"]=display_ad.apply(lambda r:f'{r["Observed min"]:.3g}–{r["Observed max"]:.3g}',axis=1)
-    display_ad["1st–99th"]=display_ad.apply(lambda r:f'{r["1st percentile"]:.3g}–{r["99th percentile"]:.3g}',axis=1)
-    display_ad=display_ad[["Parameter","Input","Observed","1st–99th","Status"]]
-    robust_text="PASS" if ad["robust_inside"] else "FAIL"
-    multi_text="PASS" if ad["inside_multivariate"] else "FAIL"
-    st.markdown(f'<div class="criterion-row"><div class="criterion-box">1st–99th percentile criterion: {robust_text}</div><div class="criterion-box">Multivariate-distance criterion: {multi_text}</div></div>',unsafe_allow_html=True)
-    st.dataframe(display_ad,use_container_width=True,hide_index=True,height=220)
-    st.markdown("""<div class="quality-box"><div class="quality-title">Sample-quality thresholds</div><b style="color:#2e7d32;">Excellent:</b> Δe/e₀ &lt; 0.04 &nbsp;&nbsp; <b style="color:#5b7f2b;">Good–Fair:</b> 0.04 ≤ Δe/e₀ &lt; 0.07<br><b style="color:#bf7600;">Poor:</b> 0.07 ≤ Δe/e₀ &lt; 0.14 &nbsp;&nbsp; <b style="color:#b42318;">Very Poor:</b> Δe/e₀ ≥ 0.14</div>""",unsafe_allow_html=True)
-    st.markdown("</div>",unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">4</span>Local SHAP explanation</div>', unsafe_allow_html=True)
+    # Append current prediction to history.
+    history_row = {
+        "AR (%)": float(input_df.iloc[0]["AreaRatio"]),
+        "CE (°)": float(input_df.iloc[0]["CuttingEdge"]),
+        "PI (%)": float(input_df.iloc[0]["PlasticityIndex"]),
+        "OCR": float(input_df.iloc[0]["OCR"]),
+        "σ′v (kPa)": float(input_df.iloc[0]["VerticalStress"]),
+        "Predicted Δe/e₀": prediction,
+        "Category": quality["label"],
+        "Date & Time": datetime.now().strftime("%d %b %Y %H:%M"),
+    }
+    st.session_state.prediction_history.append(history_row)
+    # ---------------------------------------------------------------------
+    # STEP 3: Prediction history
+    # ---------------------------------------------------------------------
+    st.markdown(
+        '<div class="history-shell">'
+        '<div class="section-head"><span class="step-badge">3</span>'
+        '<span class="section-icon">📋</span>Prediction History</div>',
+        unsafe_allow_html=True,
+    )
 
-    base_value = float(np.asarray(explanation.base_values).reshape(-1)[0])
-    shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
-    reconstructed = base_value + shap_sum
-    st.markdown(f'<div class="shap-meta">Baseline = {base_value:.4f} &nbsp;•&nbsp; Σ SHAP = {format_shap_value(shap_sum)} &nbsp;•&nbsp; Baseline + SHAP = {reconstructed:.4f}</div>',unsafe_allow_html=True)
-    st.markdown("**SHAP waterfall plot**")
-    fig=make_waterfall(explanation)
-    st.pyplot(fig,use_container_width=True)
-    plt.close(fig)
-    st.markdown("**Local SHAP contributions**")
-    shap_display=shap_table.drop(columns=["|SHAP|"]).copy()
-    shap_display["Input"]=shap_display["Input"].map(lambda x:f"{float(x):.3f}")
-    shap_display["SHAP contribution"]=shap_display["SHAP contribution"].map(format_shap_value)
-    st.dataframe(shap_display,use_container_width=True,hide_index=True,height=220)
-    st.caption("Positive SHAP values increase the prediction; negative values decrease it.")
-    st.markdown("</div>",unsafe_allow_html=True)
+    history_df = pd.DataFrame(st.session_state.prediction_history)
+    history_display = history_df.copy()
+    if not history_display.empty:
+        for col in ["AR (%)", "CE (°)", "PI (%)", "OCR", "σ′v (kPa)", "Predicted Δe/e₀"]:
+            history_display[col] = pd.to_numeric(history_display[col], errors="coerce").round(4)
 
-    with st.expander("Model details"):
+    st.dataframe(
+        history_display,
+        use_container_width=True,
+        hide_index=True,
+        height=min(255, 70 + 35 * max(len(history_display), 1)),
+    )
+
+    history_csv = history_df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        "⬇  Download History (CSV)",
+        data=history_csv,
+        file_name="soil_disturbance_prediction_history.csv",
+        mime="text/csv",
+        use_container_width=False,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ---------------------------------------------------------------------
+    # Technical detail: applicability-domain assessment
+    # ---------------------------------------------------------------------
+    with st.expander("Applicability-domain assessment"):
+        display_ad = ad["feature_table"].copy()
+        display_ad["Input"] = display_ad["Input"].round(3)
+        display_ad["Observed"] = display_ad.apply(
+            lambda r: f'{r["Observed min"]:.3g}–{r["Observed max"]:.3g}', axis=1
+        )
+        display_ad["1st–99th"] = display_ad.apply(
+            lambda r: f'{r["1st percentile"]:.3g}–{r["99th percentile"]:.3g}', axis=1
+        )
+        display_ad = display_ad[["Parameter","Input","Observed","1st–99th","Status"]]
+
+        robust_text = "PASS" if ad["robust_inside"] else "FAIL"
+        multi_text = "PASS" if ad["inside_multivariate"] else "FAIL"
+
+        st.markdown(
+            f'<div class="criterion-row">'
+            f'<div class="criterion-box">1st–99th percentile criterion: {robust_text}</div>'
+            f'<div class="criterion-box">Multivariate-distance criterion: {multi_text}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        st.dataframe(display_ad, use_container_width=True, hide_index=True, height=220)
+
+        st.markdown(
+            """
+            <div class="threshold-box">
+                <b>Sample-quality thresholds</b><br>
+                <span style="color:#2e7d32;"><b>Excellent:</b></span> Δe/e₀ &lt; 0.04 &nbsp;&nbsp;
+                <span style="color:#7f6500;"><b>Good–Fair:</b></span> 0.04 ≤ Δe/e₀ &lt; 0.07<br>
+                <span style="color:#c46b00;"><b>Poor:</b></span> 0.07 ≤ Δe/e₀ &lt; 0.14 &nbsp;&nbsp;
+                <span style="color:#b42318;"><b>Very Poor:</b></span> Δe/e₀ ≥ 0.14
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # ---------------------------------------------------------------------
+    # Technical detail: local SHAP
+    # ---------------------------------------------------------------------
+    with st.expander("Local SHAP explanation"):
+        base_value = float(np.asarray(explanation.base_values).reshape(-1)[0])
+        shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
+        reconstructed = base_value + shap_sum
+
+        st.markdown(
+            f'<div class="shap-meta">'
+            f'Baseline = {base_value:.4f} &nbsp;•&nbsp; '
+            f'Σ SHAP = {format_shap_value(shap_sum)} &nbsp;•&nbsp; '
+            f'Baseline + SHAP = {reconstructed:.4f}'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        fig = make_waterfall(explanation)
+        st.pyplot(fig, use_container_width=True)
+        plt.close(fig)
+
+        shap_display = shap_table.drop(columns=["|SHAP|"]).copy()
+        shap_display["Input"] = shap_display["Input"].map(lambda x: f"{float(x):.3f}")
+        shap_display["SHAP contribution"] = shap_display["SHAP contribution"].map(format_shap_value)
+        st.dataframe(shap_display, use_container_width=True, hide_index=True, height=220)
+        st.caption("Positive SHAP values increase the prediction; negative values decrease it.")
+
+
+    with st.expander("Model and pipeline details"):
         st.write(
             "**Loaded model:**",
             str(pipeline_dir / "best_model.joblib"),
