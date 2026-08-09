@@ -35,7 +35,7 @@ FEATURE_LABELS = {
     "CuttingEdge": "Cutting-edge angle, CE (°)",
     "PlasticityIndex": "Plasticity index, PI (%)",
     "OCR": "Overconsolidation ratio, OCR",
-    "VerticalStress": "In-situ vertical effective stress, σ′ᵥ₀ (kPa)",
+    "VerticalStress": "In-situ vertical effective stress, σ′v (kPa)",
 }
 
 SHORT_LABELS = {
@@ -43,7 +43,7 @@ SHORT_LABELS = {
     "CuttingEdge": "CE (°)",
     "PlasticityIndex": "PI (%)",
     "OCR": "OCR",
-    "VerticalStress": "σ′ᵥ₀ (kPa)",
+    "VerticalStress": "σ′v (kPa)",
 }
 
 REQUIRED_FILES = [
@@ -65,19 +65,78 @@ OPTIONAL_FILES = [
 st.markdown(
     """
     <style>
-    :root {--ink:#17365d;--line:#294f79;--soft:#b8c8d8;--muted:#667085;}
+    :root {--ink:#17365d;--line:#294f79;--soft:#b8c8d8;--muted:#667085;--bluefill:#eef6ff;--greenfill:#eef9f0;--purplefill:#f7f0ff;--orangefill:#fff6eb;--redfill:#fff0f0;}
     .block-container{max-width:790px;padding-top:.8rem;padding-bottom:1.6rem;}
     h1{color:var(--ink);text-align:center;font-size:2rem;font-weight:780;letter-spacing:-.02em;margin-bottom:.1rem;}
     h2,h3{color:var(--ink);font-weight:740;}
     .hero-subtitle{text-align:center;color:var(--muted);font-size:.86rem;margin-bottom:.8rem;}
-    .section-shell{border:3px solid var(--line);border-radius:14px;background:#fff;padding:.85rem .95rem .95rem;margin:.7rem 0;box-shadow:0 2px 0 rgba(23,54,93,.08);}
-    .section-head{display:flex;align-items:center;gap:.45rem;color:var(--ink);font-weight:780;font-size:1.02rem;padding-bottom:.45rem;margin-bottom:.6rem;border-bottom:2px solid #d5e0eb;}
-    .step-dot{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:#fff;font-size:.76rem;font-weight:800;}
-    .input-caption{color:var(--muted);font-size:.72rem;line-height:1.2;margin-top:-.08rem;}
+    .section-shell{border:4px solid var(--line);border-radius:16px;background:#fff;padding:.95rem 1rem 1rem;margin:.75rem 0;box-shadow:0 3px 0 rgba(23,54,93,.10);}
+    .section-head{display:flex;align-items:center;gap:.55rem;color:var(--ink);font-weight:820;font-size:1.12rem;padding-bottom:.55rem;margin-bottom:.55rem;border-bottom:3px solid #d5e0eb;}
+    .step-dot{display:inline-flex;align-items:center;justify-content:center;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--ink);color:#fff;font-size:.88rem;font-weight:850;}
+    .input-caption{color:var(--muted);font-size:.74rem;line-height:1.2;margin-top:.04rem;}
+    div[data-testid="stNumberInput"] label p{
+        font-size:.98rem!important;
+        font-weight:760!important;
+        color:#17365d!important;
+    }
+    div[data-testid="stNumberInput"] input{
+        font-size:1.05rem!important;
+        font-weight:760!important;
+        min-height:2.75rem!important;
+    }
+    .input-card{
+        border:3px solid #b7c6d6;
+        border-radius:12px;
+        padding:.60rem .68rem .48rem;
+        background:#f8fbff;
+        margin-bottom:.35rem;
+    }
+    .input-card-blue{background:var(--bluefill);border-color:#9fc3ef;}
+    .input-card-green{background:var(--greenfill);border-color:#a7d7ad;}
+    .input-card-purple{background:var(--purplefill);border-color:#cbb3ef;}
+    .input-card-orange{background:var(--orangefill);border-color:#edc28e;}
+    .input-card-red{background:var(--redfill);border-color:#efb1b1;}
+    .step1-note{
+        color:#667085;
+        font-size:.78rem;
+        margin:-.05rem 0 .45rem 0;
+    }
+    .step2-shell{
+        border:4px solid #2f7d3d;
+        border-radius:16px;
+        background:linear-gradient(180deg,#f6fcf7 0%,#ffffff 100%);
+        padding:.95rem 1rem 1rem;
+        margin:.75rem 0;
+        box-shadow:0 3px 0 rgba(47,125,61,.10);
+    }
+    .step2-head{
+        display:flex;
+        align-items:center;
+        gap:.55rem;
+        color:#1f6a2d;
+        font-weight:820;
+        font-size:1.12rem;
+        padding-bottom:.55rem;
+        margin-bottom:.65rem;
+        border-bottom:3px solid #cfe6d3;
+    }
+    .step2-dot{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width:1.8rem;
+        height:1.8rem;
+        border-radius:50%;
+        background:#1f6a2d;
+        color:white;
+        font-size:.88rem;
+        font-weight:850;
+    }
+
     div[data-testid="stNumberInput"] input{background:#fbfcfe;border:2px solid #b7c6d6!important;font-weight:650;}
     div[data-testid="stNumberInput"] button{border-color:#b7c6d6!important;}
     div.stButton>button[kind="primary"]{min-height:3.15rem;border-radius:10px;border:3px solid #17365d;font-weight:800;font-size:.96rem;box-shadow:0 2px 0 rgba(23,54,93,.16);}
-    .prediction-hero{border:3px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#f7fbff 0%,#fff 100%);padding:1rem;text-align:center;}
+    .prediction-hero{border:3px solid #9bc8a4;border-radius:14px;background:linear-gradient(180deg,#f8fdf9 0%,#fff 100%);padding:1rem;text-align:center;}
     .prediction-label{color:var(--muted);font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
     .prediction-value{color:var(--ink);font-size:2.25rem;line-height:1.05;font-weight:820;margin:.18rem 0 .25rem;}
     .quality-pill{display:inline-block;border:2px solid currentColor;border-radius:999px;padding:.28rem .7rem;font-weight:780;font-size:.9rem;background:#fff;}
@@ -517,9 +576,25 @@ with st.sidebar:
 # =============================================================================
 # INPUTS
 # =============================================================================
-st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">1</span>Input parameters</div>', unsafe_allow_html=True)
-st.caption("Values outside the development range are allowed so extrapolation can be flagged.")
+st.markdown(
+    '<div class="section-shell">'
+    '<div class="section-head"><span class="step-dot">1</span>INPUT PARAMETERS</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="step1-note">Enter the five model inputs. Values outside the development range are allowed so extrapolation can be flagged.</div>',
+    unsafe_allow_html=True,
+)
+
 input_values = {}
+
+CARD_CLASSES = {
+    "AreaRatio": "input-card-blue",
+    "CuttingEdge": "input-card-green",
+    "PlasticityIndex": "input-card-purple",
+    "OCR": "input-card-orange",
+    "VerticalStress": "input-card-red",
+}
 
 def render_input(feature, col):
     d = domain_lookup[feature]
@@ -528,18 +603,42 @@ def render_input(feature, col):
     ui_min = max(0.0, d["minimum"] - 0.5 * span) if feature != "VerticalStress" else 0.0
     ui_max = d["maximum"] + 0.75 * span
     step = 0.1 if feature in {"OCR", "AreaRatio", "CuttingEdge", "PlasticityIndex"} else 1.0
-    with col:
-        input_values[feature] = st.number_input(FEATURE_LABELS[feature], min_value=float(ui_min), max_value=float(ui_max), value=float(default), step=float(step), format="%.3f" if feature == "OCR" else "%.2f")
-        st.markdown(f'<div class="input-caption">Observed: {d["minimum"]:.3g}–{d["maximum"]:.3g} &nbsp;|&nbsp; 1st–99th: {d["p01"]:.3g}–{d["p99"]:.3g}</div>', unsafe_allow_html=True)
 
-r1=st.columns(2,gap="medium")
-render_input(FEATURES[0],r1[0]); render_input(FEATURES[1],r1[1])
-r2=st.columns(2,gap="medium")
-render_input(FEATURES[2],r2[0]); render_input(FEATURES[3],r2[1])
-r3=st.columns([0.18,0.64,0.18])
-render_input(FEATURES[4],r3[1])
-predict_clicked=st.button("▶  PREDICT SAMPLING DISTURBANCE",type="primary",use_container_width=True)
-st.markdown("</div>",unsafe_allow_html=True)
+    with col:
+        st.markdown(f'<div class="input-card {CARD_CLASSES[feature]}">', unsafe_allow_html=True)
+        input_values[feature] = st.number_input(
+            FEATURE_LABELS[feature],
+            min_value=float(ui_min),
+            max_value=float(ui_max),
+            value=float(default),
+            step=float(step),
+            format="%.3f" if feature == "OCR" else "%.2f",
+        )
+        st.markdown(
+            f'<div class="input-caption">'
+            f'Observed: {d["minimum"]:.3g}–{d["maximum"]:.3g} &nbsp; | &nbsp; '
+            f'1st–99th: {d["p01"]:.3g}–{d["p99"]:.3g}'
+            f'</div></div>',
+            unsafe_allow_html=True,
+        )
+
+r1 = st.columns(2, gap="small")
+render_input(FEATURES[0], r1[0])
+render_input(FEATURES[1], r1[1])
+
+r2 = st.columns(2, gap="small")
+render_input(FEATURES[2], r2[0])
+render_input(FEATURES[3], r2[1])
+
+r3 = st.columns([0.08, 0.84, 0.08])
+render_input(FEATURES[4], r3[1])
+
+predict_clicked = st.button(
+    "▶  PREDICT SAMPLING DISTURBANCE",
+    type="primary",
+    use_container_width=True,
+)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # =============================================================================
 # RESULTS
@@ -562,7 +661,7 @@ if predict_clicked:
         prediction,
         float(input_df.iloc[0]["OCR"]),
     )
-    st.markdown('<div class="section-shell"><div class="section-head"><span class="step-dot">2</span>Prediction summary</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step2-shell"><div class="step2-head"><span class="step2-dot">2</span>PREDICTION SUMMARY</div>', unsafe_allow_html=True)
     quality_css=quality["css"]
     observed_text="Inside" if ad["strict_inside"] else "Outside"
     combined_text="Within" if ad["inside_combined"] else "Outside"
