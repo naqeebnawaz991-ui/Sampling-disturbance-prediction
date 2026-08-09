@@ -384,6 +384,110 @@ st.markdown(
         border-right:1.8px solid #b9c8d7;
     }
 
+
+    .result-main-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr .82fr;
+        gap:.65rem;
+        align-items:stretch;
+        margin-bottom:.65rem;
+    }
+
+    .ad-corner-box{
+        border:2px solid #9fd0a8;
+        border-radius:12px;
+        background:linear-gradient(180deg,#f3fbf4 0%,#fff 100%);
+        padding:.72rem .65rem;
+        text-align:center;
+        min-height:145px;
+    }
+
+    .ad-corner-title{
+        color:#176b2b;
+        font-size:.78rem;
+        font-weight:800;
+        margin-bottom:.24rem;
+    }
+
+    .ad-corner-status{
+        color:#176b2b;
+        font-size:1.25rem;
+        font-weight:850;
+        line-height:1.05;
+        margin:.16rem 0;
+    }
+
+    .ad-corner-distance{
+        color:#176b2b;
+        font-size:.90rem;
+        font-weight:760;
+        margin-top:.18rem;
+    }
+
+    .ad-corner-sub{
+        color:#667085;
+        font-size:.67rem;
+        line-height:1.25;
+        margin-top:.18rem;
+    }
+
+    .shap-shell{
+        border:2px solid #c7d2df;
+        border-radius:14px;
+        background:#fff;
+        padding:.95rem 1rem 1rem;
+        margin:.8rem 0;
+        box-shadow:0 1px 2px rgba(15,23,42,.04);
+    }
+
+    .shap-grid{
+        display:grid;
+        grid-template-columns:1.45fr .75fr;
+        gap:.7rem;
+        align-items:start;
+    }
+
+    .shap-side-box{
+        border:1.8px solid #c8d3df;
+        border-radius:10px;
+        background:#f8fafc;
+        padding:.62rem .68rem;
+    }
+
+    .shap-side-title{
+        color:var(--navy);
+        font-size:.78rem;
+        font-weight:800;
+        margin-bottom:.38rem;
+        text-align:center;
+    }
+
+    .impact-legend{
+        border:1.8px solid #c8d3df;
+        border-radius:9px;
+        background:#fff;
+        padding:.55rem .60rem;
+        margin-top:.55rem;
+        text-align:center;
+        font-size:.70rem;
+        color:#475467;
+    }
+
+    .impact-bar{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:.3rem;
+        margin-top:.25rem;
+    }
+
+    .impact-blue{color:#1756b3;font-weight:760;}
+    .impact-red{color:#c91f2e;font-weight:760;}
+
+    @media(max-width:700px){
+        .result-main-grid,.shap-grid{grid-template-columns:1fr;}
+    }
+
     .footer-note{
         color:var(--muted);
         text-align:center;
@@ -705,6 +809,46 @@ def make_waterfall(explanation):
     return fig
 
 
+def make_local_shap_bar(shap_table):
+    """Compact local SHAP contribution plot for the Step 3 dashboard."""
+    plot_df = shap_table.sort_values("SHAP contribution", ascending=True).copy()
+
+    values = plot_df["SHAP contribution"].to_numpy(dtype=float)
+    labels = plot_df["Parameter"].astype(str).tolist()
+    colors = ["#d6273f" if v > 0 else "#2f6dcc" for v in values]
+
+    fig, ax = plt.subplots(figsize=(6.0, 3.25))
+    y = np.arange(len(labels))
+    ax.barh(y, values, color=colors, alpha=0.95)
+    ax.axvline(0.0, color="#7a8699", linewidth=1.0)
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=9)
+    ax.set_xlabel("SHAP value (contribution to Δe/e₀)", fontsize=9)
+    ax.set_title("Local SHAP (Feature Contribution)", fontsize=10, pad=8)
+
+    span = max(np.max(np.abs(values)), 1e-4)
+    for i, v in enumerate(values):
+        offset = 0.025 * span
+        label = format_shap_value(v)
+        ax.text(
+            v + (offset if v >= 0 else -offset),
+            i,
+            label,
+            va="center",
+            ha="left" if v >= 0 else "right",
+            fontsize=8,
+            fontweight="bold",
+            color="#c91f2e" if v > 0 else "#1756b3",
+        )
+
+    ax.grid(axis="x", alpha=0.15)
+    for spine in ["top", "right", "left"]:
+        ax.spines[spine].set_visible(False)
+    fig.tight_layout()
+    return fig
+
+
 # =============================================================================
 # REPORT
 # =============================================================================
@@ -927,18 +1071,29 @@ if predict_clicked:
         f'Δe/e₀ value: <b>{prediction:.4f}</b></div>',
         unsafe_allow_html=True,
     )
-
     st.markdown(
         f"""
-        <div class="result-two">
+        <div class="result-main-grid">
             <div class="prediction-box">
                 <div class="box-label">Predicted Δe/e₀</div>
                 <div class="pred-value">{prediction:.4f}</div>
             </div>
+
             <div class="quality-box-main">
                 <div class="box-label">Sample Quality Category</div>
                 <div class="{quality_css} quality-pill">{quality["label"]}</div>
                 <div style="font-size:.72rem;color:#667085;margin-top:.12rem;">{quality["criterion"]}</div>
+            </div>
+
+            <div class="ad-corner-box">
+                <div class="ad-corner-title">🛡 Applicability Domain</div>
+                <div class="ad-corner-status">{combined_text}</div>
+                <div class="ad-corner-distance">D = {ad["multivariate_distance"]:.3f}</div>
+                <div class="ad-corner-sub">Threshold = {ad["multivariate_threshold"]:.3f}</div>
+                <div class="ad-corner-sub">
+                    Observed: {"Within" if ad["strict_inside"] else "Outside"}<br>
+                    1st–99th: {"Within" if ad["robust_inside"] else "Outside"}
+                </div>
             </div>
         </div>
 
@@ -989,11 +1144,89 @@ if predict_clicked:
     }
     st.session_state.prediction_history.append(history_row)
     # ---------------------------------------------------------------------
-    # STEP 3: Prediction history
+    # STEP 3: Local SHAP explanation
+    # ---------------------------------------------------------------------
+    st.markdown(
+        '<div class="shap-shell">'
+        '<div class="section-head"><span class="step-badge">3</span>'
+        '<span class="section-icon">📊</span>Local SHAP Explanation</div>',
+        unsafe_allow_html=True,
+    )
+
+    base_value = float(np.asarray(explanation.base_values).reshape(-1)[0])
+    shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
+    reconstructed = base_value + shap_sum
+
+    shap_left, shap_right = st.columns([1.45, 0.75], gap="medium")
+
+    with shap_left:
+        fig = make_local_shap_bar(shap_table)
+        st.pyplot(fig, use_container_width=True)
+        plt.close(fig)
+        st.caption(
+            f"Base value: {base_value:.4f}  •  Prediction: {reconstructed:.4f}"
+        )
+
+    with shap_right:
+        st.markdown(
+            '<div class="shap-side-box">'
+            '<div class="shap-side-title">Input Values Used</div>',
+            unsafe_allow_html=True,
+        )
+
+        input_display = pd.DataFrame({
+            "Parameter": [
+                "Area Ratio (AR) [%]",
+                "Cutting-edge Angle (CE) [°]",
+                "Plasticity Index (PI) [%]",
+                "Overconsolidation Ratio (OCR)",
+                "σ′v (kPa)",
+            ],
+            "Value": [
+                f'{float(input_df.iloc[0]["AreaRatio"]):.2f}',
+                f'{float(input_df.iloc[0]["CuttingEdge"]):.2f}',
+                f'{float(input_df.iloc[0]["PlasticityIndex"]):.2f}',
+                f'{float(input_df.iloc[0]["OCR"]):.3f}',
+                f'{float(input_df.iloc[0]["VerticalStress"]):.2f}',
+            ],
+        })
+        st.dataframe(
+            input_display,
+            use_container_width=True,
+            hide_index=True,
+            height=218,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown(
+            """
+            <div class="impact-legend">
+                <b>Impact on Δe/e₀</b>
+                <div class="impact-bar">
+                    <span class="impact-blue">← Decreases</span>
+                    <span class="impact-red">Increases →</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(
+        '<div style="border:1.6px solid #c8d8ea;background:#f5f9ff;'
+        'border-radius:8px;padding:.52rem .62rem;color:#35516f;font-size:.72rem;">'
+        'ℹ Δe/e₀ = change in void ratio / initial void ratio. '
+        'Lower values indicate less sampling disturbance (better sample quality).'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ---------------------------------------------------------------------
+    # STEP 4: Prediction history
     # ---------------------------------------------------------------------
     st.markdown(
         '<div class="history-shell">'
-        '<div class="section-head"><span class="step-badge">3</span>'
+        '<div class="section-head"><span class="step-badge">4</span>'
         '<span class="section-icon">📋</span>Prediction History</div>',
         unsafe_allow_html=True,
     )
@@ -1002,7 +1235,9 @@ if predict_clicked:
     history_display = history_df.copy()
     if not history_display.empty:
         for col in ["AR (%)", "CE (°)", "PI (%)", "OCR", "σ′v (kPa)", "Predicted Δe/e₀"]:
-            history_display[col] = pd.to_numeric(history_display[col], errors="coerce").round(4)
+            history_display[col] = pd.to_numeric(
+                history_display[col], errors="coerce"
+            ).round(4)
 
     st.dataframe(
         history_display,
@@ -1060,32 +1295,6 @@ if predict_clicked:
             unsafe_allow_html=True,
         )
 
-    # ---------------------------------------------------------------------
-    # Technical detail: local SHAP
-    # ---------------------------------------------------------------------
-    with st.expander("Local SHAP explanation"):
-        base_value = float(np.asarray(explanation.base_values).reshape(-1)[0])
-        shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
-        reconstructed = base_value + shap_sum
-
-        st.markdown(
-            f'<div class="shap-meta">'
-            f'Baseline = {base_value:.4f} &nbsp;•&nbsp; '
-            f'Σ SHAP = {format_shap_value(shap_sum)} &nbsp;•&nbsp; '
-            f'Baseline + SHAP = {reconstructed:.4f}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-        fig = make_waterfall(explanation)
-        st.pyplot(fig, use_container_width=True)
-        plt.close(fig)
-
-        shap_display = shap_table.drop(columns=["|SHAP|"]).copy()
-        shap_display["Input"] = shap_display["Input"].map(lambda x: f"{float(x):.3f}")
-        shap_display["SHAP contribution"] = shap_display["SHAP contribution"].map(format_shap_value)
-        st.dataframe(shap_display, use_container_width=True, hide_index=True, height=220)
-        st.caption("Positive SHAP values increase the prediction; negative values decrease it.")
 
 
     with st.expander("Model and pipeline details"):
