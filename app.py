@@ -1071,57 +1071,52 @@ if predict_clicked:
         f'Δe/e₀ value: <b>{prediction:.4f}</b></div>',
         unsafe_allow_html=True,
     )
-    st.markdown(
-        f"""
-        <div class="result-main-grid">
-            <div class="prediction-box">
-                <div class="box-label">Predicted Δe/e₀</div>
-                <div class="pred-value">{prediction:.4f}</div>
-            </div>
-
-            <div class="quality-box-main">
-                <div class="box-label">Sample Quality Category</div>
-                <div class="{quality_css} quality-pill">{quality["label"]}</div>
-                <div style="font-size:.72rem;color:#667085;margin-top:.12rem;">{quality["criterion"]}</div>
-            </div>
-
-            <div class="ad-corner-box">
-                <div class="ad-corner-title">🛡 Applicability Domain</div>
-                <div class="ad-corner-status">{combined_text}</div>
-                <div class="ad-corner-distance">D = {ad["multivariate_distance"]:.3f}</div>
-                <div class="ad-corner-sub">Threshold = {ad["multivariate_threshold"]:.3f}</div>
-                <div class="ad-corner-sub">
-                    Observed: {"Within" if ad["strict_inside"] else "Outside"}<br>
-                    1st–99th: {"Within" if ad["robust_inside"] else "Outside"}
-                </div>
-            </div>
-        </div>
-
-        <div class="result-grid">
-            <div class="mini-card blue">
-                <div class="mini-label" style="color:#174da1;">Observed Range</div>
-                <div class="mini-value">{observed_text}</div>
-                <div class="mini-sub">All inputs within observed min–max.</div>
-            </div>
-            <div class="mini-card green">
-                <div class="mini-label" style="color:#2f7d3d;">Combined AD</div>
-                <div class="mini-value">{combined_text}</div>
-                <div class="mini-sub">Robust range + multivariate criterion.</div>
-            </div>
-            <div class="mini-card purple">
-                <div class="mini-label" style="color:#6335b5;">Multivariate Distance, D</div>
-                <div class="mini-value">{ad["multivariate_distance"]:.3f}</div>
-                <div class="mini-sub">Threshold = {ad["multivariate_threshold"]:.3f}</div>
-            </div>
-            <div class="mini-card orange">
-                <div class="mini-label" style="color:#c46b00;">AD Criterion</div>
-                <div class="mini-value">{ad_text}</div>
-                <div class="mini-sub">D compared with saved threshold.</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    step2_html = (
+        f'<div class="result-main-grid">'
+        f'<div class="prediction-box">'
+        f'<div class="box-label">Predicted Δe/e₀</div>'
+        f'<div class="pred-value">{prediction:.4f}</div>'
+        f'</div>'
+        f'<div class="quality-box-main">'
+        f'<div class="box-label">Sample Quality Category</div>'
+        f'<div class="{quality_css} quality-pill">{quality["label"]}</div>'
+        f'<div style="font-size:.72rem;color:#667085;margin-top:.12rem;">{quality["criterion"]}</div>'
+        f'</div>'
+        f'<div class="ad-corner-box">'
+        f'<div class="ad-corner-title">🛡 Applicability Domain</div>'
+        f'<div class="ad-corner-status">{combined_text}</div>'
+        f'<div class="ad-corner-distance">D = {ad["multivariate_distance"]:.3f}</div>'
+        f'<div class="ad-corner-sub">Threshold = {ad["multivariate_threshold"]:.3f}</div>'
+        f'<div class="ad-corner-sub">'
+        f'Observed: {"Within" if ad["strict_inside"] else "Outside"}<br>'
+        f'1st–99th: {"Within" if ad["robust_inside"] else "Outside"}'
+        f'</div>'
+        f'</div>'
+        f'</div>'
+        f'<div class="result-grid">'
+        f'<div class="mini-card blue">'
+        f'<div class="mini-label" style="color:#174da1;">Observed Range</div>'
+        f'<div class="mini-value">{observed_text}</div>'
+        f'<div class="mini-sub">All inputs within observed min–max.</div>'
+        f'</div>'
+        f'<div class="mini-card green">'
+        f'<div class="mini-label" style="color:#2f7d3d;">Combined AD</div>'
+        f'<div class="mini-value">{combined_text}</div>'
+        f'<div class="mini-sub">Robust range + multivariate criterion.</div>'
+        f'</div>'
+        f'<div class="mini-card purple">'
+        f'<div class="mini-label" style="color:#6335b5;">Multivariate Distance, D</div>'
+        f'<div class="mini-value">{ad["multivariate_distance"]:.3f}</div>'
+        f'<div class="mini-sub">Threshold = {ad["multivariate_threshold"]:.3f}</div>'
+        f'</div>'
+        f'<div class="mini-card orange">'
+        f'<div class="mini-label" style="color:#c46b00;">AD Criterion</div>'
+        f'<div class="mini-value">{ad_text}</div>'
+        f'<div class="mini-sub">D compared with saved threshold.</div>'
+        f'</div>'
+        f'</div>'
     )
+    st.markdown(step2_html, unsafe_allow_html=True)
 
     if not ad["inside_combined"] or not ad["strict_inside"]:
         st.markdown(
@@ -1157,7 +1152,7 @@ if predict_clicked:
     shap_sum = float(np.asarray(explanation.values[0], dtype=float).sum())
     reconstructed = base_value + shap_sum
 
-    shap_left, shap_right = st.columns([1.45, 0.75], gap="medium")
+    shap_left, shap_right = st.columns([1.25, 0.95], gap="medium")
 
     with shap_left:
         fig = make_local_shap_bar(shap_table)
@@ -1170,16 +1165,21 @@ if predict_clicked:
     with shap_right:
         st.markdown(
             '<div class="shap-side-box">'
-            '<div class="shap-side-title">Input Values Used</div>',
+            '<div class="shap-side-title">Input Values & SHAP Contributions</div>',
             unsafe_allow_html=True,
         )
+        # Build right-side table with the exact input and local SHAP contribution.
+        shap_lookup = {
+            str(row["Parameter"]): float(row["SHAP contribution"])
+            for _, row in shap_table.iterrows()
+        }
 
         input_display = pd.DataFrame({
             "Parameter": [
-                "Area Ratio (AR) [%]",
-                "Cutting-edge Angle (CE) [°]",
-                "Plasticity Index (PI) [%]",
-                "Overconsolidation Ratio (OCR)",
+                "AR (%)",
+                "CE (°)",
+                "PI (%)",
+                "OCR",
                 "σ′v (kPa)",
             ],
             "Value": [
@@ -1189,12 +1189,27 @@ if predict_clicked:
                 f'{float(input_df.iloc[0]["OCR"]):.3f}',
                 f'{float(input_df.iloc[0]["VerticalStress"]):.2f}',
             ],
+            "SHAP contribution": [
+                format_shap_value(shap_lookup.get("AR (%)", 0.0)),
+                format_shap_value(shap_lookup.get("CE (°)", 0.0)),
+                format_shap_value(shap_lookup.get("PI (%)", 0.0)),
+                format_shap_value(shap_lookup.get("OCR", 0.0)),
+                format_shap_value(shap_lookup.get("σ′v (kPa)", 0.0)),
+            ],
+            "Direction": [
+                "Increase" if shap_lookup.get("AR (%)", 0.0) > 0 else "Decrease" if shap_lookup.get("AR (%)", 0.0) < 0 else "Neutral",
+                "Increase" if shap_lookup.get("CE (°)", 0.0) > 0 else "Decrease" if shap_lookup.get("CE (°)", 0.0) < 0 else "Neutral",
+                "Increase" if shap_lookup.get("PI (%)", 0.0) > 0 else "Decrease" if shap_lookup.get("PI (%)", 0.0) < 0 else "Neutral",
+                "Increase" if shap_lookup.get("OCR", 0.0) > 0 else "Decrease" if shap_lookup.get("OCR", 0.0) < 0 else "Neutral",
+                "Increase" if shap_lookup.get("σ′v (kPa)", 0.0) > 0 else "Decrease" if shap_lookup.get("σ′v (kPa)", 0.0) < 0 else "Neutral",
+            ],
         })
+
         st.dataframe(
             input_display,
             use_container_width=True,
             hide_index=True,
-            height=218,
+            height=228,
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
